@@ -1,175 +1,89 @@
-🌦️ Weather Temperature Forecasting with GRU
-📌 Overview
-This project builds a GRU (Gated Recurrent Unit) deep learning model to forecast weekly average temperatures using time series data from ~318 weather stations across the United States.
+# 🌦️ Weather Temperature Forecasting with GRU
 
-The model is designed specifically for short time series data, where GRU outperforms more complex architectures like LSTM.
+## 📌 Overview
+This project builds a **GRU (Gated Recurrent Unit)** model to forecast weekly average temperatures using time series data from ~318 weather stations across the United States. GRU is chosen because it performs better than LSTM on small datasets by reducing overfitting while capturing temporal patterns effectively.
 
-🚀 Why GRU Instead of LSTM?
-Model	Parameters	Good for Small Data	Vanishing Gradient
-Vanilla RNN	Fewest	✅ Yes	❌ Yes (problem)
-GRU	Medium	✅ Yes	✅ No
-LSTM	Most	❌ Overfits	✅ No
-👉 Key Insight:
-LSTM has ~4× more parameters than a simple RNN and tends to overfit on small datasets.
-GRU provides the best balance between performance and complexity.
+---
 
-⚠️ Key Problem & Fix
-❌ Previous Approach (Wrong)
-Aggregated all stations → single time series (53 points)
+## 🚀 Why GRU Instead of LSTM?
 
-Result → only ~7 test samples
+| Model        | Parameters | Good for Small Data | Overfitting Risk |
+|--------------|-----------|--------------------|------------------|
+| Vanilla RNN  | Low       | Yes                | High             |
+| GRU          | Medium    | Yes                | Low              |
+| LSTM         | High      | No                 | High             |
 
-Model output → flat line (mean prediction)
+GRU is the optimal balance between performance and simplicity for this dataset.
 
-✅ Improved Approach (Correct)
-Treat each station as an independent time series
+---
 
-Generated ~15,000 sequences
+## ⚠️ Key Improvement
+Instead of aggregating all stations into a single time series (which caused poor learning and flat predictions), each station is treated as an independent time series. This increases data size to ~15,000 sequences and allows the model to learn real weather patterns.
 
-👉 Result: Model learns real temporal patterns
+---
 
-📊 Dataset
-📅 Time range: 2016 – 2017 (weekly data)
+## 📊 Dataset
+- Period: 2016–2017 (weekly data)  
+- Stations: ~318  
+- Records: 16,743  
+- Target: Average Temperature (°F)
 
-🛰️ Stations: ~318
+---
 
-📦 Total records: 16,743
+## 🧠 Pipeline
+Data loading → cleaning → EDA → per-station sequence creation → train/test split → GRU model → training → evaluation → visualization
 
-🎯 Target: Average Temperature (°F)
+---
 
-🧠 Project Pipeline
-Import libraries & set seed
+## 🔧 Model Architecture
+Input (4 time steps) → GRU(64) → Dropout(0.3) → GRU(32) → Dropout(0.2) → Dense(1)
 
-Load and inspect dataset
+- Loss: MSE  
+- Optimizer: Adam  
+- Metric: MAE  
 
-Data cleaning
+---
 
-Exploratory Data Analysis (EDA)
+## ⚙️ Training Setup
+- Window size: 4 weeks  
+- Train/Test split: 80/20 (time-based)  
+- Batch size: 32  
+- EarlyStopping + ReduceLROnPlateau used for stability and preventing overfitting  
 
-Build per-station sequences
+---
 
-Train/Test split (chronological)
+## 📈 Results
+- MAE: 4.83 °F  
+- RMSE: 6.36 °F  
+- MAPE: 11.71%  
 
-Build GRU model
+The model shows strong generalization with stable predictions across stations.
 
-Train with callbacks
+---
 
-Evaluate performance
+## 📉 Key Insights
+- Predictions closely follow real trends  
+- Residuals are centered around zero (low bias)  
+- No major overfitting observed  
+- Model successfully captures seasonal temperature patterns  
 
-Visualize predictions & residuals
+---
 
-🔧 Model Architecture
-Input (4 time steps)
-   ↓
-GRU (64 units, return_sequences=True)
-   ↓
-Dropout (0.3)
-   ↓
-GRU (32 units)
-   ↓
-Dropout (0.2)
-   ↓
-Dense (1 output)
-Loss: Mean Squared Error (MSE)
+## 🧪 Techniques Used
+Time series forecasting, sliding window approach, per-station scaling, GRU deep learning, dropout regularization, learning rate scheduling
 
-Optimizer: Adam
+---
 
-Metric: Mean Absolute Error (MAE)
+## 🛠️ Tech Stack
+Python, NumPy, Pandas, Matplotlib, Seaborn, Scikit-learn, TensorFlow/Keras
 
-⚙️ Training Strategy
-Window size: 4 weeks → predict next week
+---
 
-Train/Test split: 80% / 20%
+## 💡 Key Takeaway
+Proper data preparation (per-station sequences) is more important than model complexity. It transformed the model from a constant predictor into a strong forecasting system.
 
-Batch size: 32
+---
 
-Callbacks:
-⏹️ EarlyStopping (patience=15)
-
-📉 ReduceLROnPlateau
-
-📈 Results
-Metric	Value
-MAE	4.83 °F
-RMSE	6.36 °F
-MAPE	11.71%
-👉 The model achieves accurate and stable predictions across different stations.
-
-📉 Evaluation Insights
-✅ Good Signs
-Training & validation loss converge
-
-Residuals centered around zero
-
-No major overfitting
-
-📊 Visualizations
-Predicted vs Actual (scatter plot)
-
-Time-series comparison
-
-Residual distribution
-
-🧪 Key Techniques Used
-Time Series Forecasting
-
-Sliding Window Approach
-
-Per-group (station-wise) scaling
-
-Deep Learning (GRU)
-
-Regularization (Dropout)
-
-Learning Rate Scheduling
-
-🛠️ Tech Stack
-Python 🐍
-
-NumPy, Pandas
-
-Matplotlib, Seaborn
-
-Scikit-learn
-
-TensorFlow / Keras
-
-📂 Project Structure
-├── data/
-│   └── weather.csv
-├── notebook/
-│   └── gru_temperature_forecasting.ipynb
-├── README.md
-▶️ How to Run
-# Clone repo
-git clone https://github.com/your-username/weather-gru-forecasting.git
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run notebook
-jupyter notebook
-💡 Future Improvements
-Add more features (humidity, pressure)
-
-Try attention-based models
-
-Multi-step forecasting
-
-Station embedding instead of independent scaling
-
-Deploy as a web app
-
-📌 Key Takeaway
-Data preparation matters more than model complexity.
-Switching from aggregated data to per-station sequences transformed a useless model into a powerful predictor.
-
-👤 Author
-Abraraw Ayal
-
-🎓 Data Science Student
-
-🔗 GitHub: https://github.com/Abre1234
-
-⭐ If you like this project
-Give it a ⭐ on GitHub and share it!
+## 👤 Author
+Abraraw Ayal  
+GitHub: https://github.com/Abre1234  
